@@ -1,0 +1,14 @@
+{
+ "paused": false,
+ "settings": {
+  "min_liquidity": 5000,
+  "max_age_min": 120
+ },
+ "watchlist": [],
+ "history": [],
+ "seen": {},
+ "latest": [],
+ "tg_offset": 0,
+ "last_scan": null,
+ "welcomed": false
+}

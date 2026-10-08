@@ -1,0 +1,43 @@
+name: Meme Coin Scanner
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scanner
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run scanner
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+          LISTEN_SECONDS: "200"
+        run: python3 scanner.py
+
+      - name: Save state
+        if: always()
+        run: |
+          git config user.name "scanner-bot"
+          git config user.email "scanner-bot@users.noreply.github.com"
+          git add state.json
+          if git diff --cached --quiet; then
+            echo "No changes to save"
+          else
+            git commit -m "scanner state" -q
+            git pull --rebase -q
+            git push -q
+          fi
